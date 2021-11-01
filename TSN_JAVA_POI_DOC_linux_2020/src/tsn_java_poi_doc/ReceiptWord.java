@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import org.apache.poi.hwpf.HWPFDocument;
 
 public class ReceiptWord extends javax.swing.JFrame {
+
     private static final long serialVersionUID = 1L;
 
     class TThread1 extends Thread {
@@ -15,7 +16,7 @@ public class ReceiptWord extends javax.swing.JFrame {
         public void run() {
             String dir = new File(".").getAbsoluteFile().getParentFile().getAbsolutePath()
                     + System.getProperty("file.separator");
-            
+
             // Чтение из файла-шаблона в переменную doc
             HWPFDocument doc = null;
             try (FileInputStream fis = new FileInputStream(dir + "receipt_template.doc")) {
@@ -38,7 +39,12 @@ public class ReceiptWord extends javax.swing.JFrame {
                 doc.write(fos);
                 fos.close();
                 // Открытие файла внешней программой
-                Desktop.getDesktop().open(new File(dir + "receipt.doc"));
+                if (System.getProperty("os.name").equals("Linux")
+                        && System.getProperty("java.vendor").startsWith("Red Hat")) {
+                    new ProcessBuilder("xdg-open", dir + "receipt.doc").start();
+                } else {
+                    Desktop.getDesktop().open(new File(dir + "receipt.doc"));
+                }
             } catch (Exception ex) {
                 System.err.println("Error getDesktop!");
             }
